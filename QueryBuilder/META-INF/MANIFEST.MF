@@ -1,0 +1,1 @@
+Main-Class: com.ibermatica.mineco.querybuilder.main.QueryBuilder
