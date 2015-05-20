@@ -8,8 +8,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -148,18 +152,73 @@ public class QueryBuilderBOImpl implements QueryBuilderBO {
 		    			
 		    			try
 		    			{
-		        			Constructor<?> classConstructor = javaClass.getConstructor(String.class);
-		        			argInstance = classConstructor.newInstance(argValue);
+		        			// 19/05/2015
+		        			// Añadido soporte para java.sql.Timestamp, java.sql.Time y java.util.Date
+		    				// TODO: Revisar para java.sql.Time y java.util.Date, ya que la máscara podría fallar.
+		    				if (javaClass.equals(java.sql.Timestamp.class))
+		    				{
+		    					DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
+		    					Date formattedDate = dateFormatter.parse(argValue);
+		    					
+			        			Constructor<?> classConstructor = javaClass.getConstructor(Long.TYPE);
+			        			argInstance = classConstructor.newInstance(formattedDate.getTime());
+		    				}
+		    				else if (javaClass.equals(java.sql.Time.class))
+		    				{
+		    					DateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss");
+		    					Date formattedDate = dateFormatter.parse(argValue);
+		    					
+			        			Constructor<?> classConstructor = javaClass.getConstructor(Long.TYPE);
+			        			argInstance = classConstructor.newInstance(formattedDate.getTime());
+		    				}
+		    				else if (javaClass.equals(java.sql.Date.class))
+		    				{
+		    					DateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		    					Date formattedDate = dateFormatter.parse(argValue);
+		    					
+			        			Constructor<?> classConstructor = javaClass.getConstructor(Long.TYPE);
+			        			argInstance = classConstructor.newInstance(formattedDate.getTime());
+		    				}
+		    				else if (javaClass.equals(java.util.Date.class))
+		    				{
+		    					DateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		    					Date formattedDate = dateFormatter.parse(argValue);
+		    					
+			        			Constructor<?> classConstructor = javaClass.getConstructor(Long.class);
+			        			argInstance = classConstructor.newInstance(formattedDate.getTime());
+		    				}
+		    				else
+		    				{
+			        			Constructor<?> classConstructor = javaClass.getConstructor(String.class);
+			        			argInstance = classConstructor.newInstance(argValue);
+		    				}
 		    			}
 		    			catch (NoSuchMethodException nsmEx)
 		    			{
 		        			log.error("ERROR: No se pudo encontrar el constructor parametrizado para " + javaClass.getName());
 		    				argInstance = javaClass.newInstance();
 		    			}
+		    			catch (ParseException parseEx)
+		    			{
+		    				log.error("ERROR: No se pudo parsear la fecha: " + argValue);
+		    				throw new QueryBuilderException("ERROR: No se pudo parsear la fecha: " + argValue);
+		    			}
 		    			
 		    			if (argInstance instanceof String)
 		    			{
 		    				argValue = '\'' + argValue + '\'';
+		    			}
+		    			else if (argInstance instanceof java.sql.Timestamp)
+		    			{
+		    				argValue = "TO_TIMESTAMP(\'" + argValue + "\', 'YYYY-MM-DD HH24:MI:SS.FF3')";
+		    			}
+		    			else if (argInstance instanceof java.sql.Time)
+		    			{
+		    				argValue = "TO_TIMESTAMP(\'" + argValue + "\', 'HH24:MI:SS.FF3')";
+		    			}
+		    			else if (argInstance instanceof java.util.Date || argInstance instanceof java.sql.Date)
+		    			{
+		    				argValue = "TO_DATE(\'" + argValue + "\', 'DD/MM/YYYY')";
 		    			}
     				}
     				catch (ClassNotFoundException cnfEx)
