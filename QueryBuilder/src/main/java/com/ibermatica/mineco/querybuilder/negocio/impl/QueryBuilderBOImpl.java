@@ -82,11 +82,11 @@ public class QueryBuilderBOImpl implements QueryBuilderBO {
 		if (lstFilas.size() != 3)
 		{
 			StringBuilder errorBuilder = new StringBuilder();
-			errorBuilder.append("ERROR: Número inválido de parámetros. ");
+			errorBuilder.append("ERROR: NÃºmero invÃ¡lido de parÃ¡metros. ");
 			errorBuilder.append("Recuerde que debe introducir los siguientes valores: \n");
 			errorBuilder.append("\t1. Consulta \n");
 			errorBuilder.append("\t2. Parametros \n");
-			errorBuilder.append("\t3. Tipos de los parámetros \n");
+			errorBuilder.append("\t3. Tipos de los parï¿½metros \n");
 			
 			log.error(errorBuilder.toString());
 			throw new IllegalArgumentException(errorBuilder.toString());
@@ -125,7 +125,7 @@ public class QueryBuilderBOImpl implements QueryBuilderBO {
     	if (argCounter != lstArgs.size() || argCounter != lstArgTypes.size())
     	{
     		StringBuilder errorBuilder = new StringBuilder();
-    		errorBuilder.append("ERROR: Número de parámetros incorrectos. \n");
+    		errorBuilder.append("ERROR: NÃºmero de parÃ¡metros incorrectos. \n");
     		errorBuilder.append("\tParametros en query (?): " + argCounter + " \n");
     		errorBuilder.append("\tParametros de query: " + lstArgs.size() + " \n");
     		errorBuilder.append("\tTipos de parametros: " + lstArgTypes.size() + "\n");
@@ -142,7 +142,7 @@ public class QueryBuilderBOImpl implements QueryBuilderBO {
     			
     			// 07/05/2015
     			// Caso excepcional para Torres, que pone tipos nulos
-    			// Si el tipo es nulo, forzamos a que el valor también lo sea
+    			// Si el tipo es nulo, forzamos a que el valor tambiï¿½n lo sea
     			if (!"null".equals(argType))
     			{
     				try
@@ -153,8 +153,8 @@ public class QueryBuilderBOImpl implements QueryBuilderBO {
 		    			try
 		    			{
 		        			// 19/05/2015
-		        			// Añadido soporte para java.sql.Timestamp, java.sql.Time y java.util.Date
-		    				// TODO: Revisar para java.sql.Time y java.util.Date, ya que la máscara podría fallar.
+		        			// Aï¿½adido soporte para java.sql.Timestamp, java.sql.Time y java.util.Date
+		    				// TODO: Revisar para java.sql.Time y java.util.Date, ya que la mï¿½scara podrï¿½a fallar.
 		    				if (javaClass.equals(java.sql.Timestamp.class))
 		    				{
 		    					DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
@@ -254,7 +254,7 @@ public class QueryBuilderBOImpl implements QueryBuilderBO {
     	return query;
 	}
 
-	public boolean procesarSalida(String nomFichDestino, QueryBean query)
+	public void procesarSalida(String nomFichDestino, QueryBean query)
 	{
 		File fichDestino = new File(nomFichDestino);
 		BufferedWriter bufferedWriter = null;
@@ -281,7 +281,5 @@ public class QueryBuilderBOImpl implements QueryBuilderBO {
 				catch (IOException ioEx) {}
 			}
 		}
-		
-		return false;
 	}
 }
